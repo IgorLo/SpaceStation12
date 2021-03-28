@@ -1,28 +1,79 @@
 <script>
-    export let player = false;
+    import {stringToRGB} from "./common";
+
+    const maxDistance = 15 + 0.5;
     export let cell;
+    let player;
+    $: player = cell.player;
+    let color;
+    $: color = player ? stringToRGB(player.name) : '000000';
+    let name;
+    $: name = player ? player.name : '';
     export let size;
+    export let distance;
+    let visible, halfVisible;
+    $: halfVisible = distance <= maxDistance;
+    $: visible = distance <= maxDistance / 1.7;
 </script>
 
 <style>
     td {
         background-size: 100% 100%;
         background-position: center;
+        background-color: black;
+        width: var(--size);
+        height: var(--size);
+        transition: all 0.3s linear;
+        padding: 0;
+        margin: 0;
+        opacity: 0.0;
+    }
+
+    .halfVisible {
+        opacity: 0.5;
+    }
+
+    .visible {
+        opacity: 1.0;
+    }
+
+    td.empty {
+        /*background-image: url("../floor.jpg");*/
+        background-color: #bfaa84;
+    }
+
+    td.wall {
+        /*background-image: url("../wall.jpg");*/
+        background-color: #691b13;
+    }
+
+    td div {
+        opacity: 0.0;
+        margin: 2px;
+        box-sizing: border-box;
         width: var(--size);
         height: var(--size);
     }
 
-    td.empty {
-        background-image: url("../floor.jpg");
+    td div.player {
+        cursor: pointer;
+        opacity: 1.0;
+        position: relative;
+        background: #52ae16;
     }
 
-    td.wall {
-        background-image: url("../wall.jpg");
-    }
-
-    td.player {
-        background-image: url("../player.png");
+    div.player:hover div.name {
+        opacity: 1.0;
+        top: 100%;
+        text-align: center;
+        width: 200px;
+        right: -100px;
+        position: absolute;
     }
 </style>
 
-<td class={cell.state} class:player style="--size: {size}px"></td>
+<td class={cell.state} class:visible class:halfVisible style="--size: {size-5}px">
+    <div class:player style="background-color: #{color};">
+        <div class:name>{name}</div>
+    </div>
+</td>

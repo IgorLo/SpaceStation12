@@ -1,14 +1,16 @@
-const movementCooldown = 200; //1 секунда
+import {CellState} from "./common";
+
+const movementCooldown = 20; //1 секунда
 
 export class PlayerMovement {
-    constructor(coords, react) {
+    constructor(react) {
         this.enabled = true;
         this.cooldown = false;
-        this.coords = coords;
         this.update = this.update.bind(this);
         this.enable = this.enable.bind(this);
         this.disable = this.disable.bind(this);
         this.listenButtons = this.listenButtons.bind(this);
+        this.dropCooldown = this.dropCooldown.bind(this);
         this.react = react;
 
         window.addEventListener("keydown", onKeyDown.bind(this), false);
@@ -65,7 +67,7 @@ export class PlayerMovement {
             this.cooldown = true;
             setTimeout(() => {
                 this.cooldown = false
-            }, movementCooldown)
+            }, movementCooldown);
             this.listenButtons();
         }
         if (this.enabled) {
@@ -73,19 +75,26 @@ export class PlayerMovement {
         }
     }
 
+    dropCooldown() {
+        this.cooldown = false;
+    }
+
     listenButtons() {
+        let direction;
         if (this.keyW) {
-            this.coords.y--;
+            direction = 'up';
         }
         if (this.keyD) {
-            this.coords.x++;
+            direction = 'right'
         }
         if (this.keyA) {
-            this.coords.x--;
+            direction = 'left'
         }
         if (this.keyS) {
-            this.coords.y++;
+            direction = 'down'
         }
-        this.coords = this.react(this.coords);
+        if (direction){
+            this.react(direction);
+        }
     }
 }
