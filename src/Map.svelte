@@ -8,9 +8,12 @@
     export let maxDistanceMultiplier = 1.0;
     let distMap = calcDistMap(maxDistance * maxDistanceMultiplier);
     $: distMap = calcDistMap(maxDistance * maxDistanceMultiplier);
-    $: players.forEach((player) => {
-        calcLight(map, player.x, player.y, distMap);
-    });
+    $: if (players) {
+        let visited = new Set();
+        players.forEach((player) => {
+            calcLight(map, player.x, player.y, distMap, visited);
+        });
+    }
     let squareSize = window.innerWidth / map[0].length;
     window.addEventListener('resize', () => {
         squareSize = window.innerWidth / map[0].length;

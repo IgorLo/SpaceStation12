@@ -8,7 +8,7 @@
     import {API} from "./API";
 
     let address = '192.168.1.38'
-    let debug = false;
+    let debug = true;
 
     let originalMap;
     let map = createMap(localMap);
@@ -18,6 +18,10 @@
             name: myName,
             x: 1,
             y: 1
+        }, {
+            name: 'otherGuy',
+            x: 19,
+            y: 3
         }]
         : [];
 
@@ -42,7 +46,11 @@
                     me.x = players[0].x + 1;
                     break;
             }
-            handlePlayers([me]);
+            handlePlayers([me, {
+                name: 'otherGuy',
+                x: 19,
+                y: 3
+            }]);
         } else {
             api.makeMove(direction);
         }
@@ -60,7 +68,9 @@
             map = createMap(world);
         },
         (newPlayers) => handlePlayers(newPlayers),
-        () => {movement.dropCooldown()},
+        () => {
+            movement.dropCooldown()
+        },
         (error) => {
             message = error.message;
             console.log(error);

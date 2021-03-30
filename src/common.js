@@ -100,7 +100,7 @@ export function stringToRGB(str) {
     return intToRGB(hashCode(str));
 }
 
-export function calcLight(map, x, y, distMap) {
+export function calcLight(map, x, y, distMap, outerVisited) {
     let queue = [];
     let visited = new Set();
     let distances = new Map();
@@ -110,7 +110,7 @@ export function calcLight(map, x, y, distMap) {
     let current;
     let currentDistance;
     function tryAddNext(next, lastDist) {
-        if (next && !visited.has(next) && lastDist <= maxDist) {
+        if (next && !visited.has(next) && lastDist < maxDist) {
             distances.set(next, lastDist + 1);
             queue.push(next);
         }
@@ -119,7 +119,12 @@ export function calcLight(map, x, y, distMap) {
         current = queue.shift();
         visited.add(current);
         currentDistance = distances.get(current);
-        current.opacity = distMap.get(currentDistance) || 0.0;
+        if (outerVisited.has(current)) {
+            current.opacity = Math.max(distMap.get(currentDistance), current.opacity);
+        } else {
+            current.opacity = distMap.get(currentDistance) || 0.0;
+            outerVisited.add(current);
+        }
         if (current.state !== CellState.WALL){
             tryAddNext(map[current.y + 1][current.x], currentDistance);
             tryAddNext(map[current.y - 1][current.x], currentDistance);
@@ -130,16 +135,17 @@ export function calcLight(map, x, y, distMap) {
 }
 
 // const emptyFirst = 2;
-const emptyLast = 0;
+const emptyLast = 1;
 export function calcDistMap(dist) {
     let map = new Map();
     let last;
-    for (let i = 0; i <= (dist + 1); i++) {
-        map.set(i, (dist - i + 1)/(dist + 1));
+    for (let i = 0; i < (dist); i++) {
+        map.set(i, (dist - i)/(dist));
         last = i;
     }
     for (let i = 1; i <= emptyLast; i++) {
         map.set(last + i, 0.0);
     }
+    console.log(map);
     return map;
 }
