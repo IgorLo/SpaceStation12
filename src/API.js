@@ -1,6 +1,7 @@
 export class API{
 
-    constructor(worldCB, playersCB, cooldownCB, errorCB, closeCB, name) {
+    constructor(debug, worldCB, playersCB, cooldownCB, errorCB, closeCB, name) {
+        this.debug = debug;
         this.worldCB = worldCB;
         this.playersCB = playersCB;
         this.cooldownCB = cooldownCB;
@@ -15,15 +16,18 @@ export class API{
     }
 
     handle(event) {
+        if (this.debug) {
+            console.log(event.data);
+        }
         let data = JSON.parse(event.data);
         switch (data.type) {
-            case 'world':
+            case 'WORLD':
                 this.worldCB(data.world);
                 break;
-            case 'players':
+            case 'PLAYERS':
                 this.playersCB(data.players);
                 break;
-            case 'cooldown':
+            case 'COOLDOWN':
                 this.cooldownCB();
         }
     }
@@ -42,6 +46,9 @@ export class API{
 
     send(obj) {
         if (this.socket) {
+            if (this.debug) {
+                console.log(obj);
+            }
             let json = this.prepareData(obj);
             this.socket.send(json);
         }
@@ -49,14 +56,14 @@ export class API{
 
     sendName() {
         this.send({
-            type: 'init',
+            type: 'INIT',
             data: this.prepareData({username: this.name})
         });
     }
 
     makeMove(direction) {
         this.send({
-            type: 'move',
+            type: 'MOVE',
             data: this.prepareData({direction: direction})
         })
     }

@@ -1,9 +1,10 @@
 import {CellState} from "./common";
 
-const movementCooldown = 20; //1 секунда
+const movementCooldown = 200; //1 секунда
 
 export class PlayerMovement {
-    constructor(react) {
+    constructor(debug, react) {
+        this.debug = debug;
         this.enabled = true;
         this.cooldown = false;
         this.update = this.update.bind(this);
@@ -65,9 +66,11 @@ export class PlayerMovement {
     update() {
         if (!this.cooldown) {
             this.cooldown = true;
-            setTimeout(() => {
-                this.cooldown = false
-            }, movementCooldown);
+            if (this.debug) {
+                setTimeout(() => {
+                    this.cooldown = false
+                }, movementCooldown);
+            }
             this.listenButtons();
         }
         if (this.enabled) {

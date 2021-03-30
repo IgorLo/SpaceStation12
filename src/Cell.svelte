@@ -1,7 +1,6 @@
 <script>
     import {stringToRGB} from "./common";
 
-    const maxDistance = 15 + 0.5;
     export let cell;
     let player;
     $: player = cell.player;
@@ -10,10 +9,6 @@
     let name;
     $: name = player ? player.name : '';
     export let size;
-    export let distance;
-    let visible, halfVisible;
-    $: halfVisible = distance <= maxDistance;
-    $: visible = distance <= maxDistance / 1.7;
 </script>
 
 <style>
@@ -72,8 +67,8 @@
     }
 </style>
 
-<td class={cell.state} class:visible class:halfVisible style="--size: {size-5}px">
+<td class={cell.state} style="--size: {size-5}px; opacity: {cell.opacity};">
     <div class:player style="background-color: #{color};">
-        <div class:name>{name}</div>
+        <div class="name">{name}</div>
     </div>
 </td>

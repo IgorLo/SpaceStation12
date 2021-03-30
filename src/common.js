@@ -3,7 +3,7 @@ let ySize = 25;
 
 export const CellState = Object.freeze({
     "EMPTY" : 'empty',
-    "FILLED" : 'wall'
+    "WALL" : 'wall'
 });
 
 export const localMap = [
@@ -46,6 +46,7 @@ export class Cell {
         this.state = state;
         this.x = x;
         this.y = y;
+        this.opacity = 0.0;
     }
 }
 
@@ -59,7 +60,7 @@ export function createMap(map) {
         let inner = new Array(xSize);
         for (let x = 0; x < xSize; x++) {
             if (map){
-                inner[x] = map[y][x] ? new Cell(CellState.FILLED, x, y) : new Cell(CellState.EMPTY, x, y);
+                inner[x] = map[y][x] ? new Cell(CellState.WALL, x, y) : new Cell(CellState.EMPTY, x, y);
                 continue;
             }
             inner[x] = new Cell(getRandomState(), x, y);
@@ -69,6 +70,7 @@ export function createMap(map) {
     return outer;
 }
 
+// this code is stolen from stackoverflow
 export function makeID(length) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -91,10 +93,53 @@ function intToRGB(i){
     var c = (i & 0x00FFFFFF)
         .toString(16)
         .toUpperCase();
-
     return "00000".substring(0, 6 - c.length) + c;
 }
 
 export function stringToRGB(str) {
     return intToRGB(hashCode(str));
+}
+
+export function calcLight(map, x, y, distMap) {
+    let queue = [];
+    let visited = new Set();
+    let distances = new Map();
+    let maxDist = distMap.size - 1;
+    queue.push(map[y][x]);
+    distances.set(map[y][x], 0);
+    let current;
+    let currentDistance;
+    function tryAddNext(next, lastDist) {
+        if (next && !visited.has(next) && lastDist <= maxDist) {
+            distances.set(next, lastDist + 1);
+            queue.push(next);
+        }
+    }
+    while (queue.length !== 0) {
+        current = queue.shift();
+        visited.add(current);
+        currentDistance = distances.get(current);
+        current.opacity = distMap.get(currentDistance) || 0.0;
+        if (current.state !== CellState.WALL){
+            tryAddNext(map[current.y + 1][current.x], currentDistance);
+            tryAddNext(map[current.y - 1][current.x], currentDistance);
+            tryAddNext(map[current.y][current.x - 1], currentDistance);
+            tryAddNext(map[current.y][current.x + 1], currentDistance);
+        }
+    }
+}
+
+// const emptyFirst = 2;
+const emptyLast = 0;
+export function calcDistMap(dist) {
+    let map = new Map();
+    let last;
+    for (let i = 0; i <= (dist + 1); i++) {
+        map.set(i, (dist - i + 1)/(dist + 1));
+        last = i;
+    }
+    for (let i = 1; i <= emptyLast; i++) {
+        map.set(last + i, 0.0);
+    }
+    return map;
 }

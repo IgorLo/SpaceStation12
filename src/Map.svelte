@@ -1,14 +1,22 @@
 <script>
     import Cell from "./Cell.svelte";
+    import {calcDistMap, calcLight} from "./common";
     export let map = [[]];
     export let players;
     export let me;
+    const maxDistance = 7;
+    export let maxDistanceMultiplier = 1.0;
+    let distMap = calcDistMap(maxDistance * maxDistanceMultiplier);
+    $: distMap = calcDistMap(maxDistance * maxDistanceMultiplier);
+    $: players.forEach((player) => {
+        calcLight(map, player.x, player.y, distMap);
+    });
     let squareSize = window.innerWidth / map[0].length;
     window.addEventListener('resize', () => {
         squareSize = window.innerWidth / map[0].length;
     });
 
-    function distance(x1, x2, y1, y2){
+    function distance(x1, x2, y1, y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 </script>
@@ -31,7 +39,6 @@
                 <Cell
                         size={squareSize}
                         cell={cell}
-                        distance={distance(me.x, cell.x, me.y, cell.y)}
                 />
             {/each}
         </tr>

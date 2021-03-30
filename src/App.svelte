@@ -8,14 +8,45 @@
     import {API} from "./API";
 
     let address = '192.168.1.38'
+    let debug = false;
 
     let originalMap;
     let map = createMap(localMap);
     let myName = makeID(5);
-    let players = [];
+    let players = debug
+        ? [{
+            name: myName,
+            x: 1,
+            y: 1
+        }]
+        : [];
 
-    let movement = new PlayerMovement((direction) => {
-        api.makeMove(direction);
+    let movement = new PlayerMovement(debug, (direction) => {
+        if (debug) {
+            let me = {
+                name: myName,
+                x: players[0].x,
+                y: players[0].y
+            }
+            switch (direction) {
+                case 'up':
+                    me.y = players[0].y - 1;
+                    break;
+                case 'down':
+                    me.y = players[0].y + 1;
+                    break;
+                case 'left':
+                    me.x = players[0].x - 1;
+                    break;
+                case 'right':
+                    me.x = players[0].x + 1;
+                    break;
+            }
+            handlePlayers([me]);
+        } else {
+            api.makeMove(direction);
+        }
+
     });
     movement.enable();
 
@@ -23,19 +54,12 @@
     $: console.log(message);
 
     let api = new API(
+        debug,
         (world) => {
             originalMap = world;
             map = createMap(world);
         },
-        (newPlayers) => {
-            players.forEach((player) => {
-                map[player.y][player.x].player = null;
-            });
-            players = newPlayers;
-            players.forEach((player) => {
-                map[player.y][player.x].player = player;
-            });
-        },
+        (newPlayers) => handlePlayers(newPlayers),
         () => {movement.dropCooldown()},
         (error) => {
             message = error.message;
@@ -48,12 +72,24 @@
         myName
     );
 
-    api.init(address);
+    if (!debug) {
+        api.init(address);
+    }
+
+    function handlePlayers(newPlayers) {
+        players.forEach((player) => {
+            map[player.y][player.x].player = null;
+        });
+        players = newPlayers;
+        players.forEach((player) => {
+            map[player.y][player.x].player = player;
+        });
+    }
 
     function getMe(playerArray) {
         return playerArray.find((player) => {
             return player.name === myName;
-        }) || {x: -10, y: -10};
+        }) || {x: 1, y: 1};
     }
 </script>
 
