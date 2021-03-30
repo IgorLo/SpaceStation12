@@ -6,6 +6,11 @@ export const CellState = Object.freeze({
     "WALL" : 'wall'
 });
 
+export const Item = Object.freeze({
+    "LAMP" : 'LAMP',
+    "RADIO" : 'RADIO'
+});
+
 export const localMap = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
@@ -134,18 +139,21 @@ export function calcLight(map, x, y, distMap, outerVisited) {
     }
 }
 
-// const emptyFirst = 2;
+const fullFirst = 1.5;
 const emptyLast = 1;
-export function calcDistMap(dist) {
+export function calcDistMap(dist, distMap) {
+    if (distMap.has(dist)){
+        return distMap.get(dist);
+    }
     let map = new Map();
     let last;
-    for (let i = 0; i < (dist); i++) {
-        map.set(i, (dist - i)/(dist));
+    for (let i = 0; i < dist; i++) {
+        map.set(i, ((dist) - i)*fullFirst/(dist));
         last = i;
     }
     for (let i = 1; i <= emptyLast; i++) {
         map.set(last + i, 0.0);
     }
-    console.log(map);
+    distMap.set(dist, map);
     return map;
 }

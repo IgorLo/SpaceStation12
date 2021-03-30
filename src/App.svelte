@@ -8,7 +8,7 @@
     import {API} from "./API";
 
     let address = '192.168.1.38'
-    let debug = true;
+    let debug = false;
 
     let originalMap;
     let map = createMap(localMap);
@@ -22,6 +22,13 @@
             name: 'otherGuy',
             x: 19,
             y: 3
+        }]
+        : [];
+    let items = debug
+        ? [{
+            type: 'LAMP',
+            x: 2,
+            y: 2
         }]
         : [];
 
@@ -79,6 +86,7 @@
             message = event.code
             console.log(event);
         },
+        (items) => handleItems(items),
         myName
     );
 
@@ -93,6 +101,16 @@
         players = newPlayers;
         players.forEach((player) => {
             map[player.y][player.x].player = player;
+        });
+    }
+
+    function handleItems(newItems) {
+        items.forEach((item) => {
+            map[item.y][item.x].item = null;
+        });
+        items = newItems;
+        items.forEach((item) => {
+            map[item.y][item.x].item = item;
         });
     }
 
@@ -124,6 +142,6 @@
 
 <div class="main">
     <h1>Добро пожаловать на станцию 12!</h1>
-    <Map map={map} players={players} me={getMe(players)}/>
+    <Map map={map} items={items} players={players} me={getMe(players)}/>
     <!--    <Chat/>-->
 </div>

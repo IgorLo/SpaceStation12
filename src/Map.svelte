@@ -1,17 +1,21 @@
 <script>
     import Cell from "./Cell.svelte";
-    import {calcDistMap, calcLight} from "./common";
+    import {calcDistMap, calcLight, Item} from "./common";
     export let map = [[]];
     export let players;
+    export let items;
     export let me;
-    const maxDistance = 7;
-    export let maxDistanceMultiplier = 1.0;
-    let distMap = calcDistMap(maxDistance * maxDistanceMultiplier);
-    $: distMap = calcDistMap(maxDistance * maxDistanceMultiplier);
+    const baseDistance = 8;
+    let distMaps = new Map();
     $: if (players) {
         let visited = new Set();
         players.forEach((player) => {
-            calcLight(map, player.x, player.y, distMap, visited);
+            let actualDistance = player.items.includes(Item.LAMP) ? baseDistance * 1.5 : baseDistance;
+            if (player === me) {
+                calcLight(map, player.x, player.y, calcDistMap(actualDistance, distMaps), visited);
+            } else if (player.items.includes(Item.RADIO) && me.items.includes(Item.RADIO)) {
+                calcLight(map, player.x, player.y, calcDistMap(actualDistance, distMaps), visited);
+            }
         });
     }
     let squareSize = window.innerWidth / map[0].length;
