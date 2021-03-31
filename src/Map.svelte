@@ -10,10 +10,10 @@
     $: if (players) {
         let visited = new Set();
         players.forEach((player) => {
-            let actualDistance = player.items.includes(Item.LAMP) ? baseDistance * 1.5 : baseDistance;
+            let actualDistance = player.items && player.items.includes(Item.LAMP) ? baseDistance * 1.5 : baseDistance;
             if (player === me) {
                 calcLight(map, player.x, player.y, calcDistMap(actualDistance, distMaps), visited);
-            } else if (player.items.includes(Item.RADIO) && me.items.includes(Item.RADIO)) {
+            } else if (player.items && player.items.includes(Item.RADIO) && me.items.includes(Item.RADIO)) {
                 calcLight(map, player.x, player.y, calcDistMap(actualDistance, distMaps), visited);
             }
         });

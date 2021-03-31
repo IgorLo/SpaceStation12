@@ -40,7 +40,7 @@ export class API{
             this.socket.close();
             this.socket = null;
         }
-        this.socket = new WebSocket("ws://" + address + ":8080");
+        this.socket = new WebSocket("ws://" + address);
         this.socket.onopen = this.sendName;
         this.socket.onmessage = this.handle;
         this.socket.onerror = this.errorCB;
